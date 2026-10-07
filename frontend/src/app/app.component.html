@@ -1,0 +1,85 @@
+<div class="inbox-container">
+  
+  <!-- PANEL LATERAL: Listado de Contactos [3.1, 4] -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>Conversaciones Bot</h2>
+    </div>
+    
+    <div class="contacts-list">
+      <!-- Iteración reactiva sobre el Signal de contactos [3.1] -->
+      @for (contact of contacts(); track contact.id) {
+        <div 
+          class="contact-item" 
+          [class.active]="contact.id === activeChatId()"
+          (click)="onSelectContact(contact.id)">
+          
+          <div class="contact-info">
+            <div class="contact-meta">
+              <span class="contact-name">&#64;{{ contact.username || contact.firstName }}</span>
+              <span class="contact-time">{{ contact.lastMessageAt | date:'HH:mm' }}</span>
+            </div>
+            
+            <div class="contact-preview">
+              <p class="preview-text">{{ contact.lastMessagePreview }}</p>
+              
+              <!-- Burbuja de mensajes no leídos: solo se muestra si el contador es mayor a 0 [3.1] -->
+              @if (contact.unreadCount > 0) {
+                <span class="unread-badge">{{ contact.unreadCount }}</span>
+              }
+            </div>
+          </div>
+
+        </div>
+      } @empty {
+        <div class="empty-state">No hay contactos activos todavía.</div>
+      }
+    </div>
+  </aside>
+
+  <!-- PANEL CENTRAL: Conversación Seleccionada [3.1, 4] -->
+  <main class="chat-area">
+    @if (activeChatId()) {
+      
+      <!-- Encabezado del chat seleccionado -->
+      <header class="chat-header">
+        <h3>{{ selectedContact?.firstName }} (&#64;{{ selectedContact?.username }})</h3>
+        <small>ID: {{ activeChatId() }}</small>
+      </header>
+
+      <!-- Historial de mensajes de la conversación [3.1] -->
+      <div class="messages-container">
+        @for (msg of activeChatMessages(); track msg.id) {
+          <div class="message-row" [class.operator]="msg.isFromOperator">
+            <div class="message-bubble">
+              <p class="message-text">{{ msg.text }}</p>
+              <span class="message-time">{{ msg.sentAt | date:'HH:mm' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Cuadro de texto para escribir y enviar respuestas [3.1, 4] -->
+      <footer class="chat-footer">
+        <form (ngSubmit)="onSendReply()" class="reply-form">
+          <input 
+            type="text" 
+            [(ngModel)]="replyText" 
+            name="replyMessage"
+            placeholder="Escribe una respuesta para enviar a Telegram..." 
+            autocomplete="off" />
+          <button type="submit" [disabled]="!replyText().trim()">Enviar</button>
+        </form>
+      </footer>
+
+    } @else {
+      <!-- Estado inicial cuando no hay ningún chat abierto -->
+      <div class="no-chat-selected">
+        <div class="welcome-box">
+          <p>Selecciona una conversación del panel lateral para empezar a responder en tiempo real.</p>
+        </div>
+      </div>
+    }
+  </main>
+
+</div>

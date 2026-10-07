@@ -1,0 +1,83 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: telegram_postgres
+    networks:
+      - chat-network
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: telegram_chat_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: telegram_rabbitmq
+    networks:
+      - chat-network
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    restart: unless-stopped
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: telegram_ngrok
+    networks:
+      - chat-network
+    command: http backend:8080 --domain=${NGROK_CUSTOM_DOMAIN}
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    ports:
+      - "4040:4040"
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./PruebaTecnicaEncodelabs
+      dockerfile: WebApi/Dockerfile
+    container_name: telegram_backend
+    networks:
+      - chat-network
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=telegram_chat_db;Username=${DB_USER};Password=${DB_PASSWORD}
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=${RABBITMQ_USER}
+      - RabbitMQ__Password=${RABBITMQ_PASSWORD}
+      - Telegram__BotToken=${TELEGRAM_BOT_TOKEN}
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: telegram_frontend
+    networks:
+      - chat-network
+    ports:
+      - "4200:4200"
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+networks:
+  chat-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

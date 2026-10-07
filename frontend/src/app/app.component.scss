@@ -1,0 +1,200 @@
+// Paleta de colores inspirada en Encodelabs [4]
+$bg-dark: #0d0e12;       // Fondo general ultra oscuro
+$bg-panel: #14161d;      // Fondo de paneles laterales y contenedores
+$bg-item-hover: #1e212b; // Efecto hover
+$purple-electric: #7b2cbf; // Violeta eléctrico primario
+$purple-light: #9d4edd;    // Lila brillante para elementos activos
+$text-main: #f8f9fa;     // Blanco tiza principal
+$text-muted: #9bc1bc;    // Color secundario opaco para previsiones y tiempos
+$border-color: #222533;  // Bordes delgados elegantes
+
+.inbox-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background-color: $bg-dark;
+  color: $text-main;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden;
+}
+
+// --- PANEL LATERAL ---
+.sidebar {
+  width: 320px;
+  background-color: $bg-panel;
+  border-right: 1px solid $border-color;
+  display: flex;
+  flex-direction: column;
+
+  .sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid $border-color;
+    h2 {
+      font-size: 1.25rem;
+      margin: 0;
+      color: $purple-light;
+      font-weight: 600;
+    }
+  }
+
+  .contacts-list {
+    flex: 1;
+    overflow-y: auto;
+    
+    .contact-item {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba($border-color, 0.5);
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &:hover { background-color: $bg-item-hover; }
+      &.active {
+        background-color: rgba($purple-electric, 0.15);
+        border-left: 4px solid $purple-light;
+      }
+
+      .contact-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        
+        .contact-name { font-weight: bold; color: $text-main; }
+        .contact-time { font-size: 0.75rem; color: $text-muted; }
+      }
+
+      .contact-preview {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .preview-text {
+          font-size: 0.85rem;
+          color: $text-muted;
+          margin: 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 80%;
+        }
+
+        .unread-badge {
+          background-color: $purple-electric;
+          color: #fff;
+          font-size: 0.75rem;
+          font-weight: bold;
+          padding: 2px 8px;
+          border-radius: 12px;
+        }
+      }
+    }
+  }
+}
+
+// --- PANEL CENTRAL ---
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: $bg-dark;
+
+  .chat-header {
+    padding: 15px 25px;
+    background-color: $bg-panel;
+    border-bottom: 1px solid $border-color;
+    h3 { margin: 0 0 4px 0; font-size: 1.1rem; }
+    small { color: $text-muted; }
+  }
+
+  .messages-container {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .message-row {
+      display: flex;
+      justify-content: flex-start;
+
+      &.operator {
+        justify-content: flex-end;
+        .message-bubble {
+          background-color: $purple-electric; // El operador responde con color corporativo [4]
+          color: #ffffff;
+        }
+      }
+
+      .message-bubble {
+        max-width: 65%;
+        background-color: $bg-panel;
+        padding: 12px 16px;
+        border-radius: 12px;
+        position: relative;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+
+        .message-text { margin: 0 0 4px 0; line-height: 1.4; font-size: 0.95rem; }
+        .message-time { font-size: 0.7rem; color: rgba(#fff, 0.6); display: block; text-align: right; }
+      }
+    }
+  }
+
+  .chat-footer {
+    padding: 20px;
+    background-color: $bg-panel;
+    border-top: 1px solid $border-color;
+
+    .reply-form {
+      display: flex;
+      gap: 15px;
+
+      input {
+        flex: 1;
+        background-color: $bg-dark;
+        border: 1px solid $border-color;
+        border-radius: 8px;
+        padding: 12px 16px;
+        color: $text-main;
+        font-size: 0.95rem;
+        outline: none;
+        transition: border-color 0.2s;
+
+        &:focus { border-color: $purple-light; }
+      }
+
+      button {
+        background-color: $purple-electric;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0 24px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover:not(:disabled) { background-color: $purple-light; }
+        &:disabled { opacity: 0.4; cursor: not-allowed; }
+      }
+    }
+  }
+}
+
+// Estado sin chats abiertos
+.no-chat-selected {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .welcome-box {
+    text-align: center;
+    max-width: 400px;
+    color: $text-muted;
+    border: 1px dashed $border-color;
+    padding: 40px;
+    border-radius: 12px;
+    background-color: $bg-panel;
+  }
+}
+
+// Reseteo básico para márgenes de la app completa
+:host { display: block; margin: 0; padding: 0; }
